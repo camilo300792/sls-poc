@@ -1,0 +1,102 @@
+service: aws-node-http-api-project
+frameworkVersion: "3"
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action: "dynamodb:*"
+          Resource: !GetAtt usersTable.Arn
+  environment:
+    DYNAMODB_REGION: ${env:DYNAMODB_REGION}
+    DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT}
+    DYNAMODB_ACCESS_KEY_ID: ${env:DYNAMODB_ACCESS_KEY_ID}
+    DYNAMODB_SECRET_ACCESS_KEY: ${env:DYNAMODB_SECRET_ACCESS_KEY}
+
+package:
+  individually: true
+  patterns:
+    - "!.dynamodb/**"
+    - "!.node_modules/**"
+    - "!package.json"
+    - "!package-lock.json"
+
+custom:
+  dynamodb:
+    # If you only want to use DynamoDB Local in some stages, declare them here
+    stages:
+      - dev
+    start:
+      docker: true
+      port: 8000
+      inMemory: true
+      migrate: true
+      seed: true
+      convertEmptyValues: true
+    # Uncomment only if you already have a DynamoDB running locally
+    # noStart: true
+
+resources:
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: usersTable
+        AttributeDefinitions:
+          - AttributeName: pk
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pk
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+functions:
+  get-users:
+    handler: get_users/handler.getUsers
+    package:
+      patterns:
+        - "get_users/handler.js"
+    events:
+      - http:
+          path: users/{id}
+          method: get
+  post-users:
+    handler: post_users/handler.postUsers
+    package:
+      patterns:
+        - "post_users/handler.js"
+    events:
+      - http:
+          path: users
+          method: post
+  put-users:
+    handler: update_users/handler.updateUsers
+    package:
+      patterns:
+        - "update_users/handler.js"
+    events:
+      - http:
+          path: users/{id}
+          method: put
+  delete-users:
+    handler: delete_user/handler.delete_users
+    runtime: python3.9
+    package:
+      patterns:
+        - "delete_user/handler.py"
+    events:
+      - http:
+          path: users/{id}
+          method: delete
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-dynamodb-local
+  - serverless-offline

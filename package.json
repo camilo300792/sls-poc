@@ -1,0 +1,21 @@
+{
+  "name": "sls-poc",
+  "version": "0.0.1",
+  "description": "sls poc",
+  "main": "handler.js",
+  "scripts": {
+    "start": "sls offline start --disableCookieValidation --reloadHandler",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "eliascamiloms92@gmail.com",
+  "devDependencies": {
+    "aws-sdk": "^2.1389.0",
+    "serverless": "^3.31.0",
+    "serverless-dynamodb-local": "^1.0.2",
+    "serverless-offline": "^12.0.4"
+  },
+  "dependencies": {
+    "dotenv": "^16.1.4",
+    "serverless-dotenv-plugin": "^6.0.0"
+  }
+}
