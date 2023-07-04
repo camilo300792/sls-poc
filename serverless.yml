@@ -1,7 +1,7 @@
 service: aws-node-http-api-project
 frameworkVersion: "3"
 
-useDotenv: true
+# useDotenv: true
 
 provider:
   name: aws
@@ -12,19 +12,17 @@ provider:
         - Effect: Allow
           Action: "dynamodb:*"
           Resource: !GetAtt usersTable.Arn
-  environment:
-    DYNAMODB_REGION: ${env:DYNAMODB_REGION}
-    DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT}
-    DYNAMODB_ACCESS_KEY_ID: ${env:DYNAMODB_ACCESS_KEY_ID}
-    DYNAMODB_SECRET_ACCESS_KEY: ${env:DYNAMODB_SECRET_ACCESS_KEY}
+  # environment:
+  #   DYNAMODB_REGION: ${env:DYNAMODB_REGION}
+  #   DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT}
+  #   DYNAMODB_ACCESS_KEY_ID: ${env:DYNAMODB_ACCESS_KEY_ID}
+  #   DYNAMODB_SECRET_ACCESS_KEY: ${env:DYNAMODB_SECRET_ACCESS_KEY}
 
 package:
   individually: true
   patterns:
-    - "!.dynamodb/**"
-    - "!.node_modules/**"
-    - "!package.json"
-    - "!package-lock.json"
+    - "!*/**"
+    - "!**"
 
 custom:
   dynamodb:
@@ -63,6 +61,7 @@ functions:
     package:
       patterns:
         - "get_users/handler.js"
+        - "common/dynamodbClient.js"
     events:
       - http:
           path: users/{id}
@@ -72,6 +71,7 @@ functions:
     package:
       patterns:
         - "post_users/handler.js"
+        - "common/dynamodbClient.js"
     events:
       - http:
           path: users
@@ -81,6 +81,7 @@ functions:
     package:
       patterns:
         - "update_users/handler.js"
+        - "common/dynamodbClient.js"
     events:
       - http:
           path: users/{id}
